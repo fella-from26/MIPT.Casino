@@ -14,13 +14,13 @@ class Bandit:
         combination = f"{a} {b} {c}"
 
         if a == b == c == self.symbols[0]:
-            return combination, bet
-        elif a == b == c == self.symbols[1]:
             return combination, bet * 3
-        elif a == b == c == self.symbols[2]:
+        elif a == b == c == self.symbols[1]:
             return combination, bet * 5
-        elif a == b == c == self.symbols[3]:
+        elif a == b == c == self.symbols[2]:
             return combination, bet * 10
+        elif a == b == c == self.symbols[3]:
+            return combination, bet * 50
         elif a == b == c == self.symbols[4]:
             return combination, bet * 100
         elif a == b == c == self.symbols[5]:

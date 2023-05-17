@@ -3,8 +3,8 @@ import random
 random.seed()
 
 
-# функция для отображения корректной формы слова "очки"
 def correct_form(n):
+    """Корректная форма слова 'очки'"""
     if (n <= 4) or (22 <= n <= 24):
         return "очка"
     elif (n == 21) or (n == 31):
@@ -13,18 +13,17 @@ def correct_form(n):
         return "очков"
 
 
-# класс игрока
-class Croupier:  # крупье
+class Croupier:
+
     def __init__(self):
         self.cards = list()
         self.score = 0
         self.has_blackjack = False
 
 
-# класс игрока
 class Player:
-    def __init__(self, chat_id, bet):
-        self.id = chat_id  # на будущее
+
+    def __init__(self, bet):
         self.cards = list()
         self.score = 0
         self.bet = bet
@@ -49,34 +48,26 @@ class Player:
         self.status = "wait"
 
 
-# игра (каждый экземпляр - одна раздача)
 class Blackjack:
-    def __init__(self, users: list):
+
+    def __init__(self, bet):
         self.deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 'A'] * 4
         random.shuffle(self.deck)
 
-        self.players = list()
-        for user in users:
-            self.players.append(Player(user[0], user[1]))
+        self.player = Player(bet)
         self.croupier = Croupier()
 
-    # функция, имитирующая отображение стола
     def get_current_state(self):
+        """Функция для отображения карт игрока и крупье"""
         message = f"у крупье {', '.join(map(str, self.croupier.cards))} ({self.croupier.score} {correct_form(self.croupier.score)})\n"
 
-        if len(self.players) == 1:  # один игрок
-            player = self.players[0]
-            message += f"у вас {', '.join(map(str, player.cards))} ({player.score} {correct_form(player.score)})\n"
-            return message
+        player = self.player
+        message += f"у вас {', '.join(map(str, player.cards))} ({player.score} {correct_form(player.score)})\n"
+        return message
 
-        else:
-            for player in self.players:
-                message += f"у {player.id} {', '.join(map(str, player.cards))} ({player.score} {correct_form(player.score)})\n"
-            return message
-
-    # функция для подсчёта очков от выпавшей карты
     @staticmethod
     def count_score(card, player):
+        """Функция для подсчёта очков от выпавшей карты"""
         if type(card) is int:
             return card
         elif card == "A":
@@ -87,21 +78,21 @@ class Blackjack:
         else:
             return 10
 
-    # функция для выдачи первой карты крупье
     def croupier_first(self):
+        """Функция для выдачи первой карты крупье"""
         card = self.deck.pop()
         self.croupier.score += self.count_score(card, self.croupier)
         self.croupier.cards.append(card)
 
-    # функция, имитирующая добор крупье
     def croupier_finish(self):
+        """Функция, имитирующая добор крупье"""
         while self.croupier.score < 17:
             card = self.deck.pop()
             self.croupier.score += self.count_score(card, self.croupier)
             self.croupier.cards.append(card)
 
-    # функция для выдачи карты игроку
     def hit(self, player):
+        """Функция для выдачи карты игроку"""
         player.is_thinking = False
         card = self.deck.pop()
         player.cards.append(card)
@@ -109,17 +100,16 @@ class Blackjack:
         if player.score > 21:
             player.lost()
 
-    # функция для первой раздачи (всем игрокам - по две карты, крупье - одну)
     def deal(self):
+        """Функция для первой раздачи (всем игрокам - по две карты, крупье - одну)"""
         self.croupier_first()
 
-        for player in self.players:
-            card1, card2 = self.deck.pop(), self.deck.pop()
+        card1, card2 = self.deck.pop(), self.deck.pop()
 
-            player.score += self.count_score(card1, player)
-            player.score += self.count_score(card2, player)
-            player.cards.extend((card1, card2))
+        self.player.score += self.count_score(card1, self.player)
+        self.player.score += self.count_score(card2, self.player)
+        self.player.cards.extend((card1, card2))
 
-            if player.score == 21:
-                player.has_blackjack = True
-                player.status = "blackjack"
+        if self.player.score == 21:
+            self.player.has_blackjack = True
+            self.player.status = "blackjack"

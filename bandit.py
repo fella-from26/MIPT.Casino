@@ -3,14 +3,20 @@ import random
 random.seed()
 
 
-# игра (один экземпляр на всех игроков)
 class Bandit:
+
     def __init__(self):
         self.jackpot = random.randint(10000, 1000000)  # симулирую джекпот
         self.symbols = ('🍒', '🍎', '🍋', '💎', '💰', '7️⃣')
 
     def spin(self, bet):
+        """Запуск бандита"""
+        attempts = 2
         a, b, c = random.choice(self.symbols), random.choice(self.symbols), random.choice(self.symbols)
+        while (not a == b == c) and (attempts > 0):
+            a, b, c = random.choice(self.symbols), random.choice(self.symbols), random.choice(self.symbols)
+            attempts -= 1
+
         combination = f"{a} {b} {c}"
 
         if a == b == c == self.symbols[0]:
